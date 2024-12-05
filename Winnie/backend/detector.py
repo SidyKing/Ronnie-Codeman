@@ -4,7 +4,7 @@ import datetime
 import hashlib
 
 app = Flask(__name__)
-CORS(app)  # Allow CORS for all domains on all routes.
+CORS(app) 
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 
@@ -26,26 +26,36 @@ def read_logs():
         return [line.split(";") for line in f.read().splitlines()]
 
 
-def detect_attack(ip, route, limit, timeframe):
-    """
-    Generic function to detect repeated activity in a timeframe.
-    Args:
-        ip: Client IP address
-        route: Target route or pattern
-        limit: Max allowed attempts
-        timeframe: Timeframe in seconds
-    Returns:
-        True if attack detected, False otherwise.
-    """
+def bruteforce_detection(ip):
     logs = read_logs()
     timestamps = [
-        int(entry[2]) for entry in logs if entry[0] == ip and route in entry[4]
+        int(entry[2]) for entry in logs if "/login" in entry[4] and ip == entry[0]
     ]
-    timestamps.sort()
+    return detect_attack(timestamps, limit=5, timeframe=30)
 
+
+def enumeration_detection(ip):
+    logs = read_logs()
+    timestamps = [
+        int(entry[2]) for entry in logs if "admin" in entry[4].lower() and ip == entry[0]
+    ]
+    return detect_attack(timestamps, limit=5, timeframe=30)
+
+
+def dos(csrf):
+    logs = read_logs()
+    timestamps = [
+        int(entry[2]) for entry in logs if csrf in entry[5]
+    ]
+    return detect_attack(timestamps, limit=25, timeframe=3)
+
+
+def detect_attack(timestamps, limit, timeframe):
+    """Generalized attack detection logic."""
     if len(timestamps) < limit:
         return False
 
+    timestamps.sort()
     for i in range(len(timestamps) - limit + 1):
         if timestamps[i + limit - 1] - timestamps[i] <= timeframe:
             return True
@@ -70,28 +80,31 @@ def check_ban(ip):
 
 @app.before_request
 def log_and_check():
-    """Log requests and check for banned IPs."""
+    """Log requests and check for attacks or banned IPs."""
     client_ip = request.headers.get("X-Real-IP", request.remote_addr)
     useragent = request.headers.get("User-Agent", "").replace(";", "")
     timestamp = int(datetime.datetime.timestamp(datetime.datetime.now()))
-    csrf = hashcsrf(client_ip, useragent)
+    csrf_token = hashcsrf(client_ip, useragent)
 
-    # Log request
+    # Log the request
     with open("log.csv", "a") as f:
-        f.write(f"{client_ip};{useragent};{timestamp};{request.method};{request.path};{csrf}\n")
+        f.write(f"{client_ip};{useragent};{timestamp};{request.method};{request.path};{csrf_token}\n")
 
     # Check if IP is banned
     if check_ban(client_ip):
-        return jsonify({"error": "You are banned"}), 403
+        return (
+            "<script>alert('You are banned');window.location.replace('about:blank')</script>",
+            301,
+        )
 
-    # Check for attacks
-    if detect_attack(client_ip, "/login", 5, 30):
-        ban(client_ip, "BruteForce", timestamp, useragent)
+    # Detect attacks
+    if bruteforce_detection(client_ip):
+        ban(client_ip, "Bruteforce", timestamp, useragent)
         return render_template("honeypot.html"), 403
-    if detect_attack(client_ip, "admin", 5, 30):
+    if enumeration_detection(client_ip):
         ban(client_ip, "Enumeration", timestamp, useragent)
         return render_template("honeypot.html"), 403
-    if detect_attack(hashcsrf(client_ip, useragent), "CSRF", 25, 3):
+    if dos(csrf_token):
         ban(client_ip, "DOS", timestamp, useragent)
         return render_template("honeypot.html"), 403
 
@@ -112,8 +125,9 @@ def register():
             return render_template("honeypot.html"), 403
 
     hashed_password = hash_password(password)
+    csrf_token = hashcsrf(request.remote_addr, request.headers.get('User-Agent'))
     with open("register.csv", "a") as f:
-        f.write(f"{username};{hashed_password};{hashcsrf(request.remote_addr, request.headers.get('User-Agent'))};{request.remote_addr};{request.headers.get('User-Agent')}\n")
+        f.write(f"{username};{hashed_password};{csrf_token};{request.remote_addr};{request.headers.get('User-Agent')}\n")
 
     return jsonify({"message": "Registration successful"}), 201
 
