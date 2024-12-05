@@ -122,15 +122,19 @@ def register():
     with open("sql.txt", "r", encoding="utf-8") as f:
         sql_data = f.read()
         for line in sql_data.split("\n"):
-            if username == sql_data or password == sql_data:
+            if username == line or password == line:
                 return render_template("honeypot.html"), 403
-
+    with open("register.csv", "r") as f:
+        for line in f:
+            if username in line:
+                return jsonify({"error": "Username already exists"}), 409
+            
     hashed_password = hash_password(password)
     csrf_token = hashcsrf(request.remote_addr, request.headers.get('User-Agent'))
     with open("register.csv", "a") as f:
         f.write(f"{username};{hashed_password};{csrf_token};{request.remote_addr};{request.headers.get('User-Agent')}\n")
 
-    return jsonify({"message": "Registration successful"}), 201
+    return jsonify({"message": " successful"}), 201
 
 
 @app.route("/login", methods=["POST"])
@@ -141,7 +145,7 @@ def login():
     password = data.get("password")
 
     if not email or not password:
-        return jsonify({"error": "Missing email or password"}), 400
+        return jsonify({"error": "Missing username or password"}), 400
 
     hashed_password = hash_password(password)
 
