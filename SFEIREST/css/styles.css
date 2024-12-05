@@ -217,3 +217,71 @@ a:hover {
         transform: translateX(150%);
     }
 }
+
+/* Orages */
+.lightning {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    animation: lightning-flash 0.2s linear infinite;
+    display: none; /* Par défaut caché */
+    z-index: 15;
+}
+
+@keyframes lightning-flash {
+    0%,
+    100% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Brouillard */
+.mist {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(200, 200, 200, 0.5);
+    z-index: 10;
+    pointer-events: none;
+    display: none; /* Par défaut caché */
+}
+
+/* Neige */
+.snow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+    display: none; /* Par défaut caché */
+}
+
+.snowflake {
+    position: absolute;
+    top: -10%;
+    width: 10px;
+    height: 10px;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.8;
+    animation: fall-snow 5s linear infinite;
+}
+
+@keyframes fall-snow {
+    0% {
+        transform: translateY(0) translateX(0);
+    }
+    100% {
+        transform: translateY(100vh) translateX(-50px);
+    }
+}
