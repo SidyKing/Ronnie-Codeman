@@ -1,8 +1,11 @@
 from flask import Flask, request, render_template
+from flask_cors import CORS, cross_origin
 import datetime
 import hashlib
 
 app = Flask(__name__)
+cors = CORS(app) # allow CORS for all domains on all routes.
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 
 def hashcsrf(ip, useragent):
@@ -27,9 +30,10 @@ def enumeration_detection(ip):
         for i in range(len(timestamplist) - 1):
             difference += int(timestamplist[i + 1]) - int(timestamplist[i])
             counter += 1
-        if counter >= 10 and difference <= 1:
+        if counter >= 10 and difference <= 5:
             return True
     return False
+
 
 
 def bruteforce_detection(ip):
@@ -76,6 +80,7 @@ def ban(ip, type, date, useragent):
 
 
 @app.route("/register", methods=["POST"])
+@cross_origin()
 def register(username, passw, csrf, ip, useragent):
     with open("sql.txt", "r") as f:
         sql = f.read()
@@ -96,7 +101,14 @@ def check_ban(ip):
 
 
 @app.route("/login", methods=["POST"])
+@cross_origin()
 def login(mail, password):
+    with open("sql.txt", "r") as f:
+        sql = f.read()
+        for line in sql.splitlines():
+            if password in line or mail in line:
+                ban(request.headers["X-Real-IP"] if "X-Real-IP" in request.headers else request.remote_addr, "SQL Injection", int(datetime.datetime.timestamp(datetime.datetime.now())), request.headers.get("User-Agent"))
+            
     with open("register.csv", "r") as f:
         lines = f.read().splitlines()
         for line in lines:
@@ -123,7 +135,7 @@ def bancheck():
 
 @app.before_request
 def log_route():
-    client_ip = request.remote_addr
+    client_ip = request.headers["X-Real-IP"] if "X-Real-IP" in request.headers else request.remote_addr
     useragent = request.headers.get("User-Agent").replace(";", "")
     timestamp = int(datetime.datetime.timestamp(datetime.datetime.now()))
     requests_type = request.method
@@ -135,7 +147,7 @@ def log_route():
 
 @app.before_request
 def check_attack():
-    client_ip = request.remote_addr
+    client_ip = request.headers["X-Real-IP"] if "X-Real-IP" in request.headers else request.remote_addr
     useragent = request.headers.get("User-Agent").replace(";", "")
     timestamp = int(datetime.datetime.timestamp(datetime.datetime.now()))
 
