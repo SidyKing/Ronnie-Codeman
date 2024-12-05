@@ -119,10 +119,11 @@ def register():
     if not username or not password:
         return jsonify({"error": "Missing username or password"}), 400
 
-    with open("sql.txt", "r") as f:
+    with open("sql.txt", "r", encoding="utf-8") as f:
         sql_data = f.read()
-        if username in sql_data or password in sql_data:
-            return render_template("honeypot.html"), 403
+        for line in sql_data.split("\n"):
+            if username == sql_data or password == sql_data:
+                return render_template("honeypot.html"), 403
 
     hashed_password = hash_password(password)
     csrf_token = hashcsrf(request.remote_addr, request.headers.get('User-Agent'))
@@ -136,7 +137,7 @@ def register():
 def login():
     """Log in a user."""
     data = request.json
-    email = data.get("email")
+    email = data.get("username")
     password = data.get("password")
 
     if not email or not password:
