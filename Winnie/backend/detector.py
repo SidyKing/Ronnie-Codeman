@@ -96,12 +96,12 @@ def check_ban(ip):
 
 
 @app.route("/login", methods=["POST"])
-def login(mail, hash):
+def login(mail, password):
     with open("register.csv", "r") as f:
         lines = f.read().splitlines()
         for line in lines:
             if mail in line:
-                if hash in line:
+                if hash_password(password) in line:
                     return "OK"
     return "Invalid"
 
