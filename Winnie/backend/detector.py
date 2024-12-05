@@ -123,6 +123,7 @@ def register():
         sql_data = f.read()
         for line in sql_data.split("\n"):
             if username == line or password == line:
+                ban(request.remote_addr, "SQL Injection", int(datetime.datetime.timestamp(datetime.datetime.now())), request.headers.get('User-Agent'))
                 return render_template("honeypot.html"), 403
     with open("register.csv", "r") as f:
         for line in f:
