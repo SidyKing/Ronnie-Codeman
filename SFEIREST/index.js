@@ -176,6 +176,7 @@ function toggleLightning(show) {
 
 // Activer/Désactiver le brouillard
 function toggleMist(show) {
+  document.body.style.color = "#fff";
   const mist = document.querySelector(".mist");
   mist.style.display = show ? "block" : "none";
 }
