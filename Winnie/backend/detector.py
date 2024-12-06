@@ -1,10 +1,10 @@
 from flask import Flask, request, render_template, jsonify
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 import datetime
 import hashlib
 
 app = Flask(__name__)
-CORS(app) 
+CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 
@@ -92,10 +92,7 @@ def log_and_check():
 
     # Check if IP is banned
     if check_ban(client_ip):
-        return (
-            "<script>alert('You are banned');window.location.replace('about:blank')</script>",
-            301,
-        )
+        return {"error": "You are banned"}, 403
 
     # Detect attacks
     if bruteforce_detection(client_ip):
@@ -110,6 +107,7 @@ def log_and_check():
 
 
 @app.route("/register", methods=["POST"])
+@cross_origin(origins=all)
 def register():
     """Register a new user."""
     data = request.json
@@ -129,7 +127,7 @@ def register():
         for line in f:
             if username in line:
                 return jsonify({"error": "Username already exists"}), 409
-            
+
     hashed_password = hash_password(password)
     csrf_token = hashcsrf(request.remote_addr, request.headers.get('User-Agent'))
     with open("register.csv", "a") as f:
@@ -139,11 +137,15 @@ def register():
 
 
 @app.route("/login", methods=["POST"])
+@cross_origin(origins=all)
 def login():
     """Log in a user."""
     data = request.json
     email = data.get("username")
     password = data.get("password")
+    client_ip = request.headers.get("X-Real-IP", request.remote_addr)
+    useragent = request.headers.get("User-Agent", "").replace(";", "")
+    csrf = hashcsrf(client_ip, useragent)
 
     if not email or not password:
         return jsonify({"error": "Missing username or password"}), 400
@@ -153,7 +155,7 @@ def login():
     with open("register.csv", "r") as f:
         for line in f:
             if email in line and hashed_password in line:
-                return jsonify({"message": "Login successful"}), 200
+                return jsonify({"message": "Login successful", "csrf": csrf}), 200
 
     return jsonify({"error": "Invalid credentials"}), 403
 
