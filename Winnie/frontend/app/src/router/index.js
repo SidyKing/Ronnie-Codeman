@@ -11,7 +11,7 @@ const routes = [
     component: Public.PublicLayout,
     children: [
       { path: '/', name: 'home', component: Public.Home },
-      { path: '/dashboard', name: 'dashboard', component: Public.Dashboard }
+      { path: '/discover', name: 'discover-page', component: Public.Discover }
     ]
   },
 
