@@ -503,31 +503,32 @@
       ];
       return days[date.getDay()];
     }
+    // Update this function to handle both main weather and forecast data
     function updateWeather(weatherData) {
-      // Supposons que weatherData soit l'objet retourné par l'API avec des infos météo.
-      console.log(weatherData);
-      const mainWeather = weatherData.weather[0].main.toLowerCase(); // Type de météo, ex. 'rain', 'clear'
+      console.log("Updating weather with data:", weatherData);
 
-      // 1. Mettez à jour la température et les données textuelles
-      document.getElementById('current-temperature').textContent = `${Math.round(weatherData.main.temp)}°`;
-      document.getElementById('weather-type').textContent = weatherData.weather[0].description;
-      document.getElementById('humidity').textContent = `${weatherData.main.humidity}%`;
-      document.getElementById('wind').textContent = `${weatherData.wind.speed} km/h`;
+      // Detect if it's a forecast or main weather data
+      const mainData = weatherData.main || weatherData;
+      const weatherCondition = weatherData.weather ? weatherData.weather[0] : weatherData.weather[0];
 
-      // Mettre à jour l'heure
+      // 1. Update temperature and textual data
+      document.getElementById('current-temperature').textContent = `${Math.round(mainData.temp)}°`;
+      document.getElementById('weather-type').textContent = translateWeatherType(weatherCondition.main);
+      document.getElementById('humidity').textContent = `${mainData.humidity}%`;
+      document.getElementById('wind').textContent = `${weatherData.wind ? weatherData.wind.speed : 10} km/h`;
+
+      // Update time
       const currentTime = document.querySelector("#current-time");
-      const timestamp = weatherData.dt * 1000; // Convertir en millisecondes
+      const timestamp = (weatherData.dt || Date.now() / 1000) * 1000;
       const date = new Date(timestamp);
       currentTime.innerHTML = formatTime2(date);
 
-      // Mettre à jour le jour
+      // Update day
       const currentDay = document.querySelector("#current-day");
       currentDay.innerHTML = formatDay2(date);
 
-
-
-      // 2. Reset des classes CSS des backgrounds
-      document.body.className = ''; // Enlève toutes les classes précédentes
+      // 2. Reset CSS backgrounds and effects
+      document.body.className = '';
       document.querySelector('.rain').style.display = 'none';
       document.querySelector('.snow').style.display = 'none';
       document.querySelector('.mist').style.display = 'none';
@@ -535,7 +536,9 @@
       document.querySelectorAll('.cloud').forEach((cloud) => (cloud.style.display = 'none'));
       document.querySelector('.lightning').style.display = 'none';
 
-      // 3. Appliquez la classe et animations correspondantes
+      // 3. Apply corresponding class and animations
+      const mainWeather = weatherCondition.main.toLowerCase();
+
       switch (mainWeather) {
         case 'clear':
           document.body.classList.add('sunny-background');
@@ -545,11 +548,13 @@
         case 'rain':
           document.body.classList.add('rain-background');
           document.querySelector('.rain').style.display = 'block';
+          createRain();
           break;
 
         case 'snow':
           document.body.classList.add('snow-background');
           document.querySelector('.snow').style.display = 'block';
+          createSnow();
           break;
 
         case 'clouds':
@@ -563,9 +568,6 @@
           break;
 
         case 'mist':
-          document.body.classList.add('mist-background');
-          document.querySelector('.mist').style.display = 'block';
-          break;
         case 'fog':
           document.body.classList.add('mist-background');
           document.querySelector('.mist').style.display = 'block';
@@ -783,15 +785,15 @@
         });
     }
 
+    // Update the displayWeeklyForecast function
     function displayWeeklyForecast(data) {
       const weekForecast = document.querySelector("#week-forecast-2");
-      weekForecast.innerHTML = ""; // Efface le contenu actuel
+      weekForecast.innerHTML = ""; // Clear current content
 
-
-      // Filtrer pour une prévision par jour (heure : 12:00:00)
+      // Filter for one forecast per day (time: 12:00:00)
       const dailyForecasts = data.list.filter(forecast => forecast.dt_txt.includes("12:00:00"));
 
-      // Ajouter un tableau pour garder les données des jours
+      // Add a map to keep day data
       const daysData = {};
 
       dailyForecasts.forEach((day, index) => {
@@ -799,7 +801,7 @@
         const date = new Date(day.dt * 1000);
         const dayName = date.toLocaleDateString("fr-FR", { weekday: "long" });
 
-        // Stocker les données dans l'objet daysData
+        // Store data in daysData
         daysData[index] = day;
 
         const forecastHTML = `
@@ -812,12 +814,13 @@
     `;
         weekForecast.innerHTML += forecastHTML;
       });
-      // Ajouter des écouteurs sur chaque jour
+
+      // Add event listeners to each day
       document.querySelectorAll('.col').forEach(dayElement => {
         dayElement.addEventListener('click', () => {
           const day = dayElement.getAttribute('data-day');
           console.log(daysData[day]);
-          updateWeather(daysData[day]); // Met à jour la météo pour le jour sélectionné
+          updateWeather(daysData[day]); // Update weather for selected day
         });
       });
     }
