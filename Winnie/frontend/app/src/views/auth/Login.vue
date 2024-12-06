@@ -8,8 +8,8 @@
         <h2>Connexion</h2>
         <form @submit.prevent="loginUser">
           <div class="form-group">
-            <label for="identifier">Nom d'utilisateur ou email</label>
-            <input v-model="identifier" type="text" required />
+            <label for="username">Nom d'utilisateur</label>
+            <input v-model="username" type="text" required />
           </div>
           <div class="form-group">
             <label for="password">Mot de passe</label>
@@ -28,18 +28,18 @@
   export default {
     data() {
       return {
-        identifier: '',  // Ce champ peut être un email ou un username
+        username: '',  // Ce champ peut être un email ou un username
         password: '',
       };
     },
     methods: {
       async loginUser() {
         try {
-          const response = await axios.post('http://localhost:5000/auth/login', {
-            identifier: this.identifier,
+          const response = await axios.post('https://voituresuperrapide.pythonanywhere.com/login', {
+            username: this.username,
             password: this.password,
           });
-          localStorage.setItem('token', response.data.token); // Stocker le token JWT
+          //localStorage.setItem('token', response.data.token); // Stocker le token JWT
           this.$router.push('/');
         } catch (error) {
           console.error('Erreur de connexion:', error);

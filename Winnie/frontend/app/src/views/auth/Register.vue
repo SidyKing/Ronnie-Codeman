@@ -8,20 +8,8 @@
         <h2>Inscription</h2>
         <form @submit.prevent="registerUser">
           <div class="form-group">
-            <label for="firstname">Prénom</label>
-            <input v-model="firstname" type="text" required />
-          </div>
-          <div class="form-group">
-            <label for="lastname">Nom</label>
-            <input v-model="lastname" type="text" required />
-          </div>
-          <div class="form-group">
             <label for="username">Nom d'utilisateur</label>
             <input v-model="username" type="text" required />
-          </div>
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input v-model="email" type="email" required />
           </div>
           <div class="form-group">
             <label for="password">Mot de passe</label>
@@ -40,16 +28,13 @@
   export default {
     data() {
       return {
-        firstname: '',
-        lastname: '',
         username: '',
-        email: '',
         password: '',
       };
     },
     methods: {
       async registerUser() {
-        if (!this.firstname || !this.lastname || !this.username || !this.email || !this.password) {
+        if (!this.username || !this.password) {
           alert('Tous les champs sont requis.');
           return;
         }
@@ -59,11 +44,8 @@
         }
   
         try {
-          const response = await axios.post('http://localhost:8000/auth/register', {
-            firstname: this.firstname,
-            lastname: this.lastname,
+          const response = await axios.post('https://voituresuperrapide.pythonanywhere.com/register', {
             username: this.username,
-            email: this.email,
             password: this.password,
           });
   

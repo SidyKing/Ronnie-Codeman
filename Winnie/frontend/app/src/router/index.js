@@ -37,20 +37,4 @@ const router = createRouter({
   routes,
 });
 
-// Garde pour vérifier l'authentification
-router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('token');
-  const isLoggedIn = !!token; // Vérifie la présence du token
-
-  if (to.meta.requiresAuth && !isLoggedIn) {
-    return next('/login');
-  }
-
-  if (to.meta.role === 'admin' && (!isLoggedIn || !checkAdminRole())) {
-    return next('/login');
-  }
-
-  next();
-});
-
 export default router
