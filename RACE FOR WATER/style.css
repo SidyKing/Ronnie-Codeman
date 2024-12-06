@@ -1,0 +1,100 @@
+/* General styling */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to bottom, #001f3f, #0074d9);
+    color: white;
+    overflow-x: hidden;
+    text-align: center;
+}
+
+header {
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+header h1 {
+    font-size: 3em;
+    margin: 0;
+}
+
+header p {
+    margin: 10px 0 20px;
+    font-size: 1.2em;
+}
+
+/* Hero section with heartbeat and waves */
+#hero {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.heartbeat {
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, #ff4136, #85144b);
+    border-radius: 50%;
+    animation: heartbeat 1.5s infinite ease-in-out;
+}
+
+@keyframes heartbeat {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+.waves {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    overflow: hidden;
+    height: 150px;
+}
+
+.wave {
+    position: absolute;
+    width: 200%;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    animation: wave 6s infinite linear;
+}
+
+.wave:nth-child(2) {
+    background: rgba(255, 255, 255, 0.3);
+    animation-delay: -3s;
+}
+
+@keyframes wave {
+    0% {
+        transform: translateX(-50%);
+    }
+    100% {
+        transform: translateX(50%);
+    }
+}
+
+/* Scroll-triggered text */
+#scroll-section {
+    padding: 50px 20px;
+}
+
+.text-block {
+    margin: 50px 0;
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.5s, transform 0.5s;
+}
+
+.text-block.visible {
+    opacity: 1;
+    transform: translateY(0);
+}

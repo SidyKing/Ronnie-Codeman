@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Océan & Corps Humain : Connexions Vitales</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      line-height: 1.6;
+      background-color: #f0f8ff;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .heartbeat-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 40vh;
+      position: relative;
+    }
+
+    .heart,
+    .ocean {
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      position: relative;
+      margin: 0 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.5s ease;
+      /* Transition fluide pour l'opacité */
+    }
+
+    .heart {
+      background-color: #ff4136;
+      animation: heartbeat 1.5s ease-in-out infinite;
+      box-shadow: 0 0 20px rgba(255, 65, 54, 0.5);
+    }
+
+    .ocean {
+      background-color: #3498db;
+      box-shadow: 0 0 20px rgba(52, 152, 219, 0.5);
+      position: relative;
+    }
+
+    @keyframes heartbeat {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.1);
+        box-shadow: 0 0 40px rgba(255, 65, 54, 0.7);
+      }
+    }
+
+    .ocean-gauge-container {
+      width: 80%;
+      height: 30px;
+      background-color: #ddd;
+      border-radius: 15px;
+      margin: 20px auto 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .ocean-gauge {
+      width: 100%;
+      /* Initialement plein */
+      height: 100%;
+      background-color: #3498db;
+      transition: width 0.5s ease;
+    }
+
+    .gauge-controls {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .gauge-btn {
+      margin: 0 10px;
+      padding: 10px 20px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .gauge-btn:hover {
+      background-color: #2980b9;
+    }
+
+    .content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 100px 20px;
+    }
+
+    .explanation {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 30px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .content {
+      display: flex;
+      align-items: center;
+      position: relative;
+      max-width: 100%;
+      overflow: hidden;
+    }
+
+    .scroll-container {
+      display: flex;
+      overflow-x: scroll;
+      scroll-behavior: smooth;
+      /* Défilement fluide */
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .scroll-container::-webkit-scrollbar {
+      display: none;
+      /* Masque la barre de défilement */
+    }
+
+    .scroll-section {
+      min-width: 300px;
+      flex: 0 0 300px;
+      /* Définit la largeur de chaque section */
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .scroll-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      z-index: 10;
+      font-size: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .scroll-btn:hover {
+      background-color: #2980b9;
+    }
+
+    .left-btn {
+      left: 10px;
+    }
+
+    .right-btn {
+      right: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1 style="text-align:center; padding:20px;">Océan & Corps Humain : Connexions Vitales</h1>
+
+  <div class="container">
+    <section class="heartbeat-container">
+      <div class="heart" id="heart">
+        <img src="assets/heart.webp" width="80%" alt="">
+      </div>
+      <img class="heartbeat" src="assets/heart-heartbeat.gif" alt="">
+      <div class="ocean" id="ocean">
+        <img src="assets/sea.webp" width="80%" alt="">
+      </div>
+    </section>
+
+    <div class="ocean-gauge-container">
+      <div id="oceanGauge" class="ocean-gauge"></div>
+    </div>
+
+    <div class="gauge-controls">
+      <button id="fillBtn" class="gauge-btn">Remplir Océan</button>
+    </div>
+    <div class="content">
+      <button class="scroll-btn left-btn">◀</button>
+      <div class="scroll-container">
+        <div class="explanation scroll-section">
+          <h2>Échanges Gazeux : Poumons & Phytoplancton</h2>
+          <p>Les poumons humains absorbent l'oxygène et rejettent le dioxyde de carbone, tout comme le phytoplancton
+            produit
+            une grande partie de l'oxygène que nous respirons en capturant le CO₂. Ces deux systèmes jouent un rôle
+            vital
+            dans le maintien de la vie sur Terre.</p>
+        </div>
+
+        <div class="explanation scroll-section">
+          <h2>Circulation : Flux Sanguins & Courants Océaniques</h2>
+          <p>Les courants océaniques distribuent chaleur, nutriments et énergie à travers le globe, tout comme le
+            système
+            circulatoire humain transporte le sang, chargé d'oxygène et de nutriments, vers les cellules de notre corps.
+            Tous deux assurent une circulation essentielle pour la vie.</p>
+        </div>
+
+        <div class="explanation scroll-section">
+          <h2>Régulation : Système Immunitaire & Équilibre Écologique</h2>
+          <p>Le système immunitaire protège le corps humain contre les menaces externes, tout comme les écosystèmes
+            océaniques
+            résistent aux perturbations pour maintenir la biodiversité. La destruction de l'équilibre dans l'un ou
+            l'autre
+            système peut entraîner des conséquences catastrophiques.</p>
+        </div>
+
+        <div class="explanation scroll-section">
+          <h2>Échanges Thermiques : Corps & Climat Océanique</h2>
+          <p>Le corps humain régule sa température pour rester en équilibre, tout comme les océans jouent un rôle clé
+            dans la
+            régulation du climat global. Leur capacité à absorber et redistribuer la chaleur est essentielle pour
+            maintenir des conditions de vie viables.</p>
+        </div>
+
+        <div class="explanation scroll-section">
+          <h2>Rôle Protecteur : Peau & Barrières Coralliennes</h2>
+          <p>La peau humaine agit comme une barrière contre les agressions extérieures, tout comme les récifs coralliens
+            protègent les côtes contre les vagues et les tempêtes. Cependant, les deux systèmes sont vulnérables aux
+            agressions, qu'elles soient environnementales ou humaines.</p>
+        </div>
+
+        <div class="explanation scroll-section">
+          <h2>Recyclage : Déchets Organiques & Écosystèmes Marins</h2>
+          <p>Le corps humain recycle ses déchets métaboliques grâce au foie et aux reins, tandis que les océans
+            recyclent les
+            nutriments à travers des cycles biologiques complexes. Ces processus assurent le fonctionnement durable des
+            écosystèmes terrestres et marins.</p>
+        </div>
+
+      </div>
+      <button class="scroll-btn right-btn">▶</button>
+    </div>
+  </div>
+
+  <script>
+    const scrollContainer = document.querySelector('.scroll-container');
+    const leftBtn = document.querySelector('.left-btn');
+    const rightBtn = document.querySelector('.right-btn');
+    const heartBeatContainer = document.querySelector('.heartbeat-container');
+
+    // Défilement vers la gauche
+    leftBtn.addEventListener('click', () => {
+      scrollContainer.scrollLeft -= 300; // Défile de 300px vers la gauche
+    });
+
+    // Défilement vers la droite
+    rightBtn.addEventListener('click', () => {
+      scrollContainer.scrollLeft += 300; // Défile de 300px vers la droite
+    });
+    // Gestion de la barre océanique et opacité
+    const oceanGauge = document.getElementById('oceanGauge');
+    const fillBtn = document.getElementById('fillBtn');
+    const oceanElement = document.getElementById('ocean');
+    const heartElement = document.getElementById('heart');
+    const heartBeatElement = document.querySelector('.heartbeat');
+
+    let gaugeWidth = 100; // Largeur initiale en pourcentage
+
+    // Fonction pour diminuer automatiquement le niveau
+    function drainOcean() {
+      if (gaugeWidth > 0) {
+        gaugeWidth -= 1; // Diminue de 1% toutes les 100ms
+        updateGauge();
+      } else {
+        alert("Vous êtes mort ! L'océan est vide.");
+        clearInterval(drainInterval); // Arrête le drainage
+        //actualiser la page si on veut recommencer
+        heartBeatContainer.innerHTML = '<h1 style="text-align:center; padding:20px;">Vous êtes mort ! 🥲</h1><button class="gauge-btn" onclick="location.reload()">Recommencer</button>';
+      }
+    }
+
+    // Fonction pour remplir le niveau
+    function fillOcean() {
+      if (gaugeWidth < 100) {
+        gaugeWidth += 10; // Augmente de 10%
+        updateGauge();
+      } else {
+        alert("L'océan est déjà plein !");
+      }
+    }
+
+    // Met à jour la barre visuellement et ajuste l'opacité
+    function updateGauge() {
+      oceanGauge.style.width = `${gaugeWidth}%`;
+
+      // Calcul de l'opacité en fonction de la jauge (entre 0 et 1)
+      const opacity = gaugeWidth / 100;
+      oceanElement.style.opacity = opacity;
+      heartElement.style.opacity = opacity;
+      heartBeatElement.style.opacity = opacity;
+    }
+
+    // Démarrage du drainage automatique
+    const drainInterval = setInterval(drainOcean, 100); // Diminution toutes les 100ms
+
+    // Ajout de l'événement au bouton "Remplir Océan"
+    fillBtn.addEventListener('click', fillOcean);
+  </script>
+</body>
+
+</html>
