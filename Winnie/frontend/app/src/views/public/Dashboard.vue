@@ -1,145 +1,149 @@
 <template>
-    <div class="dashboard-container">
-      <h1>Banned Users Dashboard</h1>
-  
-      <!-- Bouton de déconnexion -->
-      <button @click="logoutUser" class="logout-button">Déconnexion</button>
-  
-      <!-- Section de recherche -->
-      <div class="card p-4 mb-5">
-        <h2>Search for Banned User</h2>
-        <form @submit.prevent="searchUser">
-          <div class="mb-3">
-            <label for="searched_ip" class="form-label">Enter IP Address:</label>
-            <input type="text" v-model="searchedIp" class="form-control" id="searched_ip" placeholder="e.g., 192.168.1.1" />
+    <div class="login-page">
+      <!-- Texte Matrix -->
+      <h1>RONNIE CODEMAN</h1>
+      
+      <!-- Formulaire de connexion -->
+      <div class="login-form">
+        <h2>Connexion</h2>
+        <form @submit.prevent="loginUser">
+          <div class="form-group">
+            <label for="username">Nom d'utilisateur</label>
+            <input v-model="username" type="text" required />
           </div>
-          <button type="submit" class="btn btn-primary">Search</button>
+          <div class="form-group">
+            <label for="password">Mot de passe</label>
+            <input v-model="password" type="password" required />
+          </div>
+          <button type="submit" class="login-button">Se connecter</button>
         </form>
-      </div>
-  
-      <!-- Résultats de la recherche -->
-      <div v-if="userDetails" class="card p-4 mb-5">
-        <h2>Details for IP: {{ userDetails.IP }}</h2>
-        <table class="table table-hover">
-          <thead class="table-dark">
-            <tr>
-              <th scope="col">IP</th>
-              <th scope="col">Ban Type</th>
-              <th scope="col">Timestamp</th>
-              <th scope="col">User Agent</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>{{ userDetails.IP }}</td>
-              <td>{{ userDetails.BanType }}</td>
-              <td>{{ userDetails.Timestamp }}</td>
-              <td>{{ userDetails.UserAgent }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-  
-      <!-- Section des graphiques -->
-      <div class="chart-container mb-5">
-        <h2>Ban Types Distribution</h2>
-        <canvas id="banTypeChart"></canvas>
-      </div>
-  
-      <div class="chart-container mb-5">
-        <h2>Bans by IP</h2>
-        <canvas id="bansByIPChart"></canvas>
-      </div>
-  
-      <!-- Section des utilisateurs bannis -->
-      <div class="card p-4">
-        <h2>Banned Users</h2>
-        <table class="table table-hover">
-          <thead class="table-dark">
-            <tr>
-              <th scope="col">IP</th>
-              <th scope="col">Ban Type</th>
-              <th scope="col">Timestamp</th>
-              <th scope="col">User Agent</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="ban in bannedUsers" :key="ban.IP">
-              <td>{{ ban.IP }}</td>
-              <td>{{ ban.BanType }}</td>
-              <td>{{ ban.Timestamp }}</td>
-              <td>{{ ban.UserAgent }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <p>Pas encore de compte ? <router-link to="/register">S'inscrire</router-link></p>
       </div>
     </div>
   </template>
   
-<script>
-export default {
-  data() {
-    return {
-      searchedIp: '',
-      userDetails: null,
-      bannedUsers: [],
-    };
-  },
-  methods: {
-    logoutUser() {
-      // Supprimer le jeton de connexion (si stocké dans localStorage ou autre méthode)
-      localStorage.removeItem('token');
-      // Rediriger vers la racine ("/")
-      this.$router.push('/');
+  <script>
+  import axios from 'axios';
+  
+  export default {
+    data() {
+      return {
+        username: '',  // Ce champ peut être un email ou un username
+        password: '',
+      };
     },
-    searchUser() {
-      // Logique de recherche utilisateur (ici, une simulation)
-      if (this.searchedIp === '192.168.1.1') {
-        this.userDetails = {
-          IP: '192.168.1.1',
-          BanType: 'Temporary',
-          Timestamp: '2024-12-06 12:30:00',
-          UserAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-        };
-      } else {
-        this.userDetails = null;
-        alert('User not found!');
+    methods: {
+      async loginUser() {
+        try {
+          // Appel API pour se connecter
+          const response = await axios.post('https://voituresuperrapide.pythonanywhere.com/login', {
+            username: this.username,
+            password: this.password,
+          });
+  
+          // Si la connexion est réussie, rediriger l'utilisateur
+          // vers le tableau de bord externe
+          if (response.data.token) {
+            // Vous pouvez également stocker le token dans le localStorage
+            localStorage.setItem('token', response.data.token);
+            
+            // Redirection vers le tableau de bord externe
+            window.location.href = 'https://voituresuperrapide.pythonanywhere.com/banned_dashboard';
+          }
+        } catch (error) {
+          console.error('Erreur de connexion:', error);
+          alert('Erreur de connexion, veuillez réessayer.');
+        }
       }
-    },
-  },
-  mounted() {
-    // Vérifier si un token existe, sinon rediriger vers la page de connexion
-    if (!localStorage.getItem('token')) {
-      this.$router.push('/login');
-    } else {
-      this.bannedUsers = [
-        { IP: '192.168.1.1', BanType: 'Temporary', Timestamp: '2024-12-06 12:30:00', UserAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
-        { IP: '192.168.1.2', BanType: 'Permanent', Timestamp: '2024-12-05 15:15:00', UserAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
-      ];
-      this.renderCharts();
     }
-  },
-  methods: {
-    renderCharts() {
-      // Logique de rendu des graphiques
-    },
-  },
-};
-</script>
+  };
+  </script>
   
   <style scoped>
-  .logout-button {
-    background-color: red;
+  /* Styles globaux pour la page */
+  .login-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: black;
     color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-bottom: 20px;
   }
   
-  .logout-button:hover {
-    background-color: darkred;
+  /* Texte Matrix */
+  .matrix-text {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 3rem;
+    color: #00ff00;
+    text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00, 0 0 15px #00ff00, 0 0 20px #00ff00;
+    margin-bottom: 30px;
+  }
+  
+  /* Conteneur du formulaire */
+  .login-form {
+    background-color: #1e1e1e;
+    padding: 20px 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  /* Champs de formulaire */
+  .form-group {
+    margin-bottom: 15px;
+    text-align: left;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 1rem;
+    color: #00ff00;
+  }
+  
+  input {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    background-color: #333;
+    color: white;
+  }
+  
+  /* Bouton de connexion */
+  .login-button {
+    width: 100%;
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .login-button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Lien d'inscription */
+  p {
+    margin-top: 15px;
+    font-size: 0.9rem;
+  }
+  
+  router-link {
+    color: #00ff00;
+    text-decoration: none;
+  }
+  
+  router-link:hover {
+    text-decoration: underline;
   }
   </style>
   
