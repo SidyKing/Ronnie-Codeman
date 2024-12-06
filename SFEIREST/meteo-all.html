@@ -374,8 +374,8 @@
 
     /* Neige */
     .snow-background {
-      background: linear-gradient(to bottom, #f8f9fa, #d7e9f7);
-      animation: snow-fall 5s linear infinite;
+      background: linear-gradient(to bottom, #2f2f2f, #000000);
+      animation: thunder-animation 2s infinite;
     }
 
     @keyframes snow-fall {
@@ -662,7 +662,7 @@
 
     // Activer/Désactiver le brouillard
     function toggleMist(show) {
-      document.body.style.color = "#fff";
+      document.body.style.color = "#000";
       const mist = document.querySelector(".mist");
       mist.style.display = show ? "block" : "none";
     }
@@ -723,7 +723,7 @@
       // Ajouter des animations basées sur le type de météo
       // Ajouter des animations basées sur le type de météo
       if (weatherType === "Thunderstorm" || weatherType === "Drizzle") {
-        toggleLightning(true);
+        //toggleLightning(true);
         toggleMist(false);
         toggleSun(false);
         toggleClouds(true);
