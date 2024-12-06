@@ -162,6 +162,11 @@ https://voituresuperrapide.pythonanywhere.com/
 - Contenu :
   - `IP`, `Ban Type`, `Timestamp`, `User Agent`.
 
+### **2. `ban.csv`**
+- Contenu :
+  - `IP`.
+
+
 ### **3. `register.csv`**
 - Contenu :
   - `Username`, `Hashed Password`, `CSRF Token`, `IP`, `User Agent`.
