@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Effet Glace et Explosion</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: url('./background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            transition: background 1s ease-in-out;
+        }
+
+        .center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            opacity: 60%;
+            transform: translate(-50%, -50%);
+            color: white;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 5;
+        }
+
+        .ghost-ice {
+            position: absolute;
+            width: 350px;
+            height: 250px;
+            opacity: 0;
+            transition: transform 1s ease, opacity 1s ease;
+            pointer-events: none; /* Par défaut, l'image ne capte pas les clics */
+        }
+
+        .ghost-ice.visible {
+            pointer-events: auto; /* Rendre l'image cliquable uniquement si visible */
+        }
+
+        video#background-video {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 20; /* Au-dessus du background mais sous le texte */
+        }
+
+        .playing {
+            display: block !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="center-text">
+        <h1>Briser la glace pour découvrir le logo !</h1>
+    </div>
+
+    <!-- Vidéo qui remplace le background -->
+    <video id="background-video" src="./Ice Explosion Logo Reveal_720p.mp4"></video>
+
+    <script>
+        // Créer et insérer l'image fantôme
+        const ghostImage = new Image();
+        ghostImage.src = './Nouveau projet.png';
+        ghostImage.classList.add('ghost-ice');
+        document.body.appendChild(ghostImage);
+
+        // Référence à la vidéo
+        const video = document.getElementById('background-video');
+
+        // Définir la zone de déplacement
+        const zone = {
+            xStart: 100, // Départ horizontal
+            yStart: 100, // Départ vertical
+            width: window.innerWidth , // Largeur de la zone
+            height: window.innerHeight  // Hauteur de la zone
+        };
+
+        // Fonction pour animer le déplacement aléatoire de l'image
+        function animateGhost() {
+            const ghostWidth = 150; // Taille initiale de l'image
+
+            // Calculer des positions aléatoires dans les limites définies
+            const x = Math.random() * (zone.width - ghostWidth) + zone.xStart;
+            const y = Math.random() * (zone.height - ghostWidth) + zone.yStart;
+
+            // Appliquer la position et rendre l'image visible
+            ghostImage.style.transform = `translate(${x}px, ${y}px) scale(1)`;
+            ghostImage.style.opacity = 1;
+            ghostImage.classList.add('visible'); // Rendre cliquable
+
+            // Faire disparaître l'image après un délai
+            setTimeout(() => {
+                ghostImage.style.opacity = 0;
+                ghostImage.classList.remove('visible'); // Rendre non cliquable
+            }, 2000);
+        }
+
+        // Répéter l'animation toutes les 3 secondes
+        setInterval(animateGhost, 3000);
+
+        // Interaction : Cliquer sur l'image pour jouer la vidéo
+        ghostImage.addEventListener('click', () => {
+            // Déplacer l'image au centre et l'agrandir
+            ghostImage.style.transition = "transform 1s ease, opacity 1s ease";
+            ghostImage.style.transform = `translate(${window.innerWidth / 2 - 75}px, ${window.innerHeight / 2 - 75}px) scale(5)`; // Agrandir et centrer
+            ghostImage.style.opacity = 1;
+
+            // Démarrer la vidéo après l'animation
+            setTimeout(() => {
+                document.body.style.background = 'none'; // Supprimer le background actuel
+                video.classList.add('playing'); // Afficher la vidéo
+                video.play(); // Lancer la vidéo
+
+                // Lors de la fin de la vidéo
+                video.addEventListener('ended', () => {
+                    video.classList.remove('playing'); // Masquer la vidéo
+                    video.pause(); // Mettre la vidéo en pause
+                    video.currentTime = 0; // Réinitialiser la vidéo
+                    document.body.style.background = "url('./background.jpg') no-repeat center center fixed"; // Restaurer le fond d'origine
+                    document.body.style.backgroundSize = 'cover';
+
+                    // Réinitialiser l'image fantôme
+                    ghostImage.style.transform = "translate(0px, 0px) scale(1)";
+                    ghostImage.style.opacity = 0;
+                });
+            }, 1000); // Attendre que l'animation soit terminée
+        });
+    </script>
+</body>
+</html>
