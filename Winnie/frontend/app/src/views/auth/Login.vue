@@ -1,8 +1,8 @@
 <template>
   <div class="login-page">
     <!-- Texte Matrix -->
-    <h1>RONNIE CODEMAN est connecté</h1>
-    
+    <h1>RONNIE CODEMAN</h1>
+
     <!-- Formulaire de connexion -->
     <div class="login-form">
       <h2>Connexion</h2>
@@ -28,37 +28,51 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      username: '', // Nom d'utilisateur ou email
-      password: '', // Mot de passe
+      username: '', // Ce champ peut être un email ou un nom d'utilisateur
+      password: '',
     };
   },
   methods: {
     async loginUser() {
       try {
-        // Appel API pour se connecter
-        const response = await axios.post('https://voituresuperrapide.pythonanywhere.com/login', {
-          username: this.username,
-          password: this.password,
-        });
-        console.log(response);
+        // Nettoyer localStorage avant la connexion
+        localStorage.removeItem('token');
+        localStorage.removeItem('admin');
 
-        // Si la connexion est réussie
-        if (response.data.csrf) {
-          console.log('Connexion reussie');
-          // Stocker le token dans le localStorage
-          localStorage.setItem('token', response.data.csrf);
+        // Appel API pour authentification
+        const response = await axios.post(
+          'https://voituresuperrapide.pythonanywhere.com/login',
+          {
+            username: this.username,
+            password: this.password,
+          }
+        );
 
-          // Redirection vers une route interne (tableau de bord Vue)
-          //this.$router.push('/dashboard');
+        // Vérification si l'utilisateur est admin
+        const { admin, csrf, message } = response.data;
 
-          // OU redirection vers une URL externe (décommentez la ligne ci-dessous si nécessaire)
-          window.location.replace('https://voituresuperrapide.pythonanywhere.com/banned_dashboard?csrf=' + response.data.csrf);
+        if (admin) {
+          // Stockage du token et rôle dans le localStorage
+          localStorage.setItem('token', csrf);
+          localStorage.setItem('admin', admin);
+
+          // Redirection vers le tableau de bord si administrateur
+          window.location.replace(
+            'https://voituresuperrapide.pythonanywhere.com/banned_dashboard?csrf=' + csrf
+          );
+        } else {
+          alert('Accès refusé. Vous n\'avez pas les droits nécessaires.');
         }
       } catch (error) {
         console.error('Erreur de connexion:', error);
         alert('Erreur de connexion, veuillez réessayer.');
       }
     },
+  },
+  mounted() {
+    // Réinitialiser l'état localStorage lorsque la page est chargée
+    localStorage.removeItem('token');
+    localStorage.removeItem('admin');
   },
 };
 </script>
@@ -76,7 +90,7 @@ export default {
 }
 
 /* Texte Matrix */
-.matrix-text {
+h1 {
   font-family: 'Press Start 2P', monospace;
   font-size: 3rem;
   color: #00ff00;
