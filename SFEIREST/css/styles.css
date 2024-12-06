@@ -6,6 +6,12 @@ body {
     color: #444e54;
     font-family: "Inter", sans-serif;
 }
+.city-title,
+.temp-title,
+.todays-info {
+    position: relative; /* Nécessaire pour appliquer un z-index */
+    z-index: 10; /* Les textes seront au-dessus des nuages */
+}
 
 main {
     margin-top: 30px;
@@ -49,22 +55,26 @@ button:hover {
 
 .current-weather {
     margin-top: 50px;
+    z-index: -1;
 }
 
 .city-title {
     max-width: 300px;
     font-size: 32px;
     font-weight: bold;
+    z-index: -1;
 }
 
 .temp-title {
     font-size: 140px;
     font-family: "Inter", sans-serif;
     text-align: center;
+    z-index: -1;
 }
 
 .todays-info {
     margin: 15px 0;
+    z-index: -1;
 }
 
 .side-info {
@@ -182,12 +192,14 @@ a:hover {
 .cloud {
     position: absolute;
     background: #ffffff;
+    opacity: 0.8;
     width: 150px;
     height: 100px;
     border-radius: 50%;
     box-shadow: -40px 40px 0 -20px #ffffff;
     animation: move-clouds 10s linear infinite;
     display: none; /* Par défaut, les nuages sont cachés */
+    z-index: -1;
 }
 
 .cloud:after,
@@ -200,6 +212,7 @@ a:hover {
     top: -50px;
     left: 25px;
     border-radius: 50%;
+    z-index: -1;
 }
 
 .cloud:before {
@@ -207,6 +220,7 @@ a:hover {
     height: 120px;
     top: -40px;
     left: -40px;
+    z-index: -1;
 }
 
 @keyframes move-clouds {
@@ -251,7 +265,6 @@ a:hover {
     background: rgba(200, 200, 200, 0.5);
     z-index: 10;
     pointer-events: none;
-    display: none; /* Par défaut caché */
 }
 
 /* Neige */
@@ -263,17 +276,17 @@ a:hover {
     height: 100%;
     pointer-events: none;
     z-index: 10;
-    display: none; /* Par défaut caché */
+    /* Par défaut caché */
 }
 
 .snowflake {
     position: absolute;
     top: -10%;
-    width: 10px;
-    height: 10px;
+    width: 15px;
+    height: 15px;
     background: white;
     border-radius: 50%;
-    opacity: 0.8;
+    opacity: 0.9;
     animation: fall-snow 5s linear infinite;
 }
 
@@ -282,6 +295,71 @@ a:hover {
         transform: translateY(0) translateX(0);
     }
     100% {
-        transform: translateY(100vh) translateX(-50px);
+        transform: translateY(100vh) translateX(calc(100vw - 100%));
     }
+}
+
+/* Météo ensoleillée */
+.sunny-background {
+    background: linear-gradient(to bottom, #f7e98f, #fbc02d);
+    background-size: cover;
+    animation: sunny-animation 10s linear infinite alternate;
+}
+
+@keyframes sunny-animation {
+    from {
+        background-position: 0% 0%;
+    }
+    to {
+        background-position: 100% 100%;
+    }
+}
+
+/* Météo pluvieuse */
+.rain-background {
+    background: linear-gradient(to bottom, #4c669f, #3553a4);
+    background-size: cover;
+}
+
+/* Orage */
+.thunderstorm-background {
+    background: linear-gradient(to bottom, #2f2f2f, #000000);
+    animation: thunder-animation 2s infinite;
+}
+
+@keyframes thunder-animation {
+    0%,
+    100% {
+        filter: brightness(1);
+    }
+    50% {
+        filter: brightness(2);
+    }
+}
+
+/* Brouillard */
+.mist-background {
+    background: linear-gradient(to bottom, #d7d2cc, #304352);
+    background-size: cover;
+}
+
+/* Neige */
+.snow-background {
+    background: linear-gradient(to bottom, #f8f9fa, #d7e9f7);
+    animation: snow-fall 5s linear infinite;
+}
+
+@keyframes snow-fall {
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: 0 100%;
+    }
+}
+
+/* Autres types */
+.default-background {
+    background: linear-gradient(to bottom, #8e9eab, #eef2f3);
+    background-size: cover;
 }
