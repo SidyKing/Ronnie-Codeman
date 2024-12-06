@@ -1,7 +1,7 @@
 <template>
     <div class="login-page">
       <!-- Texte Matrix -->
-      <h1 class="matrix-text">INFORMATRIQUES</h1>
+      <h1>RONNIE CODEMAN</h1>
       
       <!-- Formulaire de connexion -->
       <div class="login-form">
@@ -28,7 +28,7 @@
   export default {
     data() {
       return {
-        username: '',  // Ce champ peut être un email ou un username
+        username: '',
         password: '',
       };
     },
@@ -39,8 +39,12 @@
             username: this.username,
             password: this.password,
           });
-          //localStorage.setItem('token', response.data.token); // Stocker le token JWT
-          this.$router.push('/');
+          
+          // Stocker le token JWT dans le localStorage
+          localStorage.setItem('token', response.data.token);
+          
+          // Rediriger vers le tableau de bord
+          this.$router.push('/dashboard');
         } catch (error) {
           console.error('Erreur de connexion:', error);
           alert('Erreur de connexion, veuillez réessayer.');
@@ -49,6 +53,7 @@
     }
   };
   </script>
+  
   
   <style scoped>
   /* Styles globaux pour la page */

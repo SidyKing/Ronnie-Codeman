@@ -1,6 +1,6 @@
 <template>
     <div class="homepage">
-        Ronnie Codeman
+        Bienvenue chez Ronnie Codeman
     </div>
 </template>
 
