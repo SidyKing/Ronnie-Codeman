@@ -188,6 +188,10 @@ curl -X POST http://127.0.0.1:5000/ban_user \
 - **Nom d'utilisateur :** agf
 - **Mot de passe :** agfagf
 
+## IP utilisable pour recherche
+
+- 194.167.154.35
+
 ## Contribution
 Les contributions sont les bienvenues ! Créez une issue ou une pull request pour proposer des améliorations.
 
