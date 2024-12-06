@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blacklisted Users Dashboard</title>
+    <!-- Inclure Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Inclure Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Arial', sans-serif;
+            color: #343a40;
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        canvas {
+            margin: 0 auto;
+        }
+
+        .chart-container {
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .chart-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 10px 0;
+            background-color: #343a40;
+            color: #ffffff;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            h1, h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const csrfToken = urlParams.get('csrf');
+
+        // Stocker le token CSRF dans le stockage local
+        localStorage.setItem('csrf', csrfToken);
+
+    </script>
+    <div class="container my-5">
+        <h1 class="mb-4">Blacklisted Users Dashboard</h1>
+
+        <!-- Barre de recherche -->
+        <div class="card p-4 mb-5">
+            <h2>Search for Blacklisted User</h2>
+            <form method="GET" action="/banned_dashboard" id="csrfForm">
+                <div class="mb-3">
+                    <label for="searched_ip" class="form-label">Enter IP Address:</label>
+                    <!-- Champ masqué pour CSRF -->
+                    <input type="hidden" name="csrf" id="csrfInput">
+                    <input type="text" class="form-control" id="searched_ip" name="searched_ip" placeholder="e.g., 192.168.1.1">
+                </div>
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+        </div>
+
+        <script>
+            // Ajouter dynamiquement le token CSRF au champ masqué du formulaire
+            document.getElementById('csrfInput').value = localStorage.getItem('csrf');
+        </script>
+        </div>
+
+        <!-- Résultats de la recherche -->
+        {% if user_details %}
+        <div class="card p-4 mb-5">
+            <h2>Details for IP: {{ user_details[0]["IP"] }}</h2>
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">IP</th>
+                        <th scope="col">Ban Type</th>
+                        <th scope="col">Timestamp</th>
+                        <th scope="col">User Agent</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for detail in user_details %}
+                    <tr>
+                        <td>{{ detail["IP"] }}</td>
+                        <td>{{ detail["Ban Type"] }}</td>
+                        <td>{{ detail["Timestamp"] }}</td>
+                        <td>{{ detail["User Agent"] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        {% if user_logs %}
+        <div class="card p-4 mb-5">
+            <h2>Activity Logs for IP: {{ user_logs[0]["IP"] }}</h2>
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">IP</th>
+                        <th scope="col">User Agent</th>
+                        <th scope="col">Timestamp</th>
+                        <th scope="col">Method</th>
+                        <th scope="col">Path</th>
+                        <th scope="col">CSRF Token</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in user_logs %}
+                    <tr>
+                        <td>{{ log["IP"] }}</td>
+                        <td>{{ log["User Agent"] }}</td>
+                        <td>{{ log["Timestamp"] }}</td>
+                        <td>{{ log["Method"] }}</td>
+                        <td>{{ log["Path"] }}</td>
+                        <td>{{ log["CSRF Token"] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Section des graphiques -->
+        <div class="chart-container mb-5">
+            <h2>Blacklist Reasons</h2>
+            <canvas id="banTypeChart"></canvas>
+        </div>
+
+        <div class="chart-container mb-5">
+            <h2>Blacklist by IP</h2>
+            <canvas id="bansByIPChart"></canvas>
+        </div>
+
+        <!-- Section des utilisateurs bannis -->
+        <div class="card p-4">
+            <h2>Blacklisted Users</h2>
+            <div class="table-container">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">IP</th>
+                            <th scope="col">Ban Type</th>
+                            <th scope="col">Timestamp</th>
+                            <th scope="col">User Agent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ban in ban_logs %}
+                        <tr>
+                            <td>{{ ban["IP"] }}</td>
+                            <td>{{ ban["Ban Type"] }}</td>
+                            <td>{{ ban["Timestamp"] }}</td>
+                            <td>{{ ban["User Agent"] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2023 Blacklisted Users Dashboard. Designed with ❤️ and Flask.
+    </footer>
+
+    <!-- Inclure Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script pour les graphiques -->
+    <script>
+        const banTypes = {{ ban_types|tojson }};
+        const bansByIP = {{ bans_by_ip|tojson }};
+
+        // Graphique des types de ban
+        const ctxBanTypes = document.getElementById('banTypeChart').getContext('2d');
+        new Chart(ctxBanTypes, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(banTypes),
+                datasets: [{
+                    data: Object.values(banTypes),
+                    backgroundColor: ['#ff6384', '#36a2eb', '#cc65fe', '#ffce56'],
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Distribution of Ban Types'
+                    }
+                }
+            }
+        });
+
+        // Graphique des bannissements par IP
+        const ctxBansByIP = document.getElementById('bansByIPChart').getContext('2d');
+        new Chart(ctxBansByIP, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(bansByIP),
+                datasets: [{
+                    label: 'Number of Bans',
+                    data: Object.values(bansByIP),
+                    backgroundColor: '#36a2eb',
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
+                    title: {
+                        display: true,
+                        text: 'Bans by IP'
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'IP Address'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Number of Bans'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
