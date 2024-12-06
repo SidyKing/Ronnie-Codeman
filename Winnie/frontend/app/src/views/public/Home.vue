@@ -26,7 +26,7 @@
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: linear-gradient(135deg, #1e1e1e, #2b2b2b);
+    background: linear-gradient(135deg, black, black);
     color: #ffffff;
     font-family: 'Roboto', sans-serif;
   }

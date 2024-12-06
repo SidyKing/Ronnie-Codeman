@@ -19,6 +19,15 @@
       </form>
       <p>Pas encore de compte ? <router-link to="/register">S'inscrire</router-link></p>
     </div>
+
+    <!-- Popup pour les utilisateurs normaux -->
+    <div v-if="showPopup" class="popup-overlay" @click="closePopup">
+      <div class="popup">
+        <h3>Accès refusé</h3>
+        <p>Vous n'avez pas les droits nécessaires pour accéder au tableau de bord.</p>
+        <button @click="closePopup" class="popup-button">OK</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -28,17 +37,14 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      username: '', // Ce champ peut être un email ou un nom d'utilisateur
+      username: '', // Champ pour l'utilisateur
       password: '',
+      showPopup: false, // Contrôle de l'affichage de la popup
     };
   },
   methods: {
     async loginUser() {
       try {
-        // Nettoyer localStorage avant la connexion
-        localStorage.removeItem('token');
-        localStorage.removeItem('admin');
-
         // Appel API pour authentification
         const response = await axios.post(
           'https://voituresuperrapide.pythonanywhere.com/login',
@@ -48,31 +54,27 @@ export default {
           }
         );
 
-        // Vérification si l'utilisateur est admin
-        const { admin, csrf, message } = response.data;
+        // Récupérer les données de la réponse
+        const { admin, csrf } = response.data;
 
         if (admin) {
-          // Stockage du token et rôle dans le localStorage
-          localStorage.setItem('token', csrf);
-          localStorage.setItem('admin', admin);
-
-          // Redirection vers le tableau de bord si administrateur
+          // Rediriger les administrateurs vers le tableau de bord
           window.location.replace(
             'https://voituresuperrapide.pythonanywhere.com/banned_dashboard?csrf=' + csrf
           );
         } else {
-          alert('Accès refusé. Vous n\'avez pas les droits nécessaires.');
+          // Rediriger les utilisateurs normaux vers la page d'accueil avec une popup
+          this.showPopup = true;
+          this.$router.push('/'); // Redirection à l'accueil
         }
       } catch (error) {
         console.error('Erreur de connexion:', error);
         alert('Erreur de connexion, veuillez réessayer.');
       }
     },
-  },
-  mounted() {
-    // Réinitialiser l'état localStorage lorsque la page est chargée
-    localStorage.removeItem('token');
-    localStorage.removeItem('admin');
+    closePopup() {
+      this.showPopup = false; // Fermer la popup
+    },
   },
 };
 </script>
@@ -162,5 +164,55 @@ router-link {
 
 router-link:hover {
   text-decoration: underline;
+}
+
+/* Styles pour la popup */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup {
+  background: #1e1e1e;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  color: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  max-width: 400px;
+  width: 100%;
+}
+
+.popup h3 {
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+  color: #ff4d4d;
+}
+
+.popup p {
+  font-size: 1rem;
+  margin-bottom: 20px;
+}
+
+.popup-button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.popup-button:hover {
+  background: #0056b3;
 }
 </style>
